@@ -1,7 +1,20 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(name:'ENV', choices: ['dev','test'], description: 'Select Environment')
+        booleanParam(name:'DEBUG_MODE', defaultValue: false, description: 'Enable debug logs?')
+        string(name:'VERSION', defaultValue:'1.0.0', description: 'App Version')
+    }
+
     stages {
+        stage('show parameters'){
+            steps{
+                echo "Deploying to: ${params.ENV}"
+                echo "Debug Mode: ${params.DEBUG_MODE}"
+                echo "Version: ${params.VERSION}"
+            }
+        }
         stage('Build') {
             steps {
                 echo "Building the application..."
@@ -18,8 +31,13 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "Deploying..."
-                sh "echo Dummy Deployment Done"
+                script{
+                    if (params.ENV == 'dev') {
+                        echo "Deploying to DEV Environment..."
+                    } else {
+                        echo "Deploying to TEST Enviornment..."
+                    }
+                }
             }
         }
     }
